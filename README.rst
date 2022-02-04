@@ -75,6 +75,14 @@ You can also install the in-development version with::
     pip install https://github.com/nnanos/Time_Frequency_Analysis/archive/main.zip
 
 
+
+Usage
+=============
+::
+    afdgdfsdg
+
+
+
 Documentation
 =============
 
