@@ -2,8 +2,14 @@
 import numpy as np
 import scipy
 from numpy.fft import fft,ifft,rfft,irfft
+<<<<<<< HEAD
 import os
 
+=======
+#from DFT_routines import *
+import os
+#import nsgt
+>>>>>>> 524fa7a02a56fa829bc3dca77678617928023d3b
 
 
 

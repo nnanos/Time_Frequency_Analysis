@@ -17,6 +17,10 @@ Why does this file exist, and why not put this in __main__?
 
 import argparse
 import yaml
+<<<<<<< HEAD
+=======
+import librosa
+>>>>>>> 524fa7a02a56fa829bc3dca77678617928023d3b
 
 from Audio_proc_lib.audio_proc_functions import * 
 from Plotting_funcs.Plotting_util_and_other import *
@@ -114,7 +118,10 @@ def main():
           plt.figure()
           plot_spectrogram(c1,ksi_s,"linear")
           plt.title("NSGT_library")  
+<<<<<<< HEAD
           plt.show()
+=======
+>>>>>>> 524fa7a02a56fa829bc3dca77678617928023d3b
         #_--------------------------------------------------------------------------------------------
 
     elif args.front_end=="STFT":
