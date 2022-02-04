@@ -91,7 +91,7 @@ def main():
         norm = lambda x: np.sqrt(np.sum(np.abs(np.square(x))))
         rec_err = norm(f_rec - f)/norm(f)
         print("Reconstruction error : %.16e \t  \n  " %(rec_err) )
-        print("Calculation time: %.3fs"%(t2-t1))
+        print("Calculation time (forward and backward): %.3fs"%(t2-t1))
         #----------------------------------------------------------------------------------------
 
         #compare with library:
@@ -103,7 +103,7 @@ def main():
         t2 = cputime()
 
         print("Reconstruction error : %.16e \t  \n  " %(rec_err) )
-        print("Calculation time: %.3fs"%(t2-t1))      
+        print("Calculation time (forward and backward): %.3fs"%(t2-t1))      
         #_--------------------------------------------------------------------------------------------
 
 
@@ -134,7 +134,7 @@ def main():
         t2 = cputime()
         norm = lambda x: np.sqrt(np.sum(np.abs(np.square(x))))
         rec_err = norm(x_rec - x)/norm(x)
-        print("Calculation time: %.3fs"%(t2-t1))
+        print("Calculation time (forward and backward): %.3fs"%(t2-t1))
         print("Reconstruction error : %.16e \t  \n  " %(rec_err) )  
         #-----------------------------------------------------------------------------------------------
 
@@ -144,7 +144,7 @@ def main():
         x_rec1 = librosa.istft(X1,  hop_length=args.params["a"], win_length=args.params["support"], window=g )
         t2 = cputime()
         rec_err = norm(x_rec1 - x[:len(x_rec1)] )/norm(x[:len(x_rec1)])
-        print("Calculation time: %.3fs"%(t2-t1))
+        print("Calculation time (forward and backward): %.3fs"%(t2-t1))
         print("Reconstruction error : %.16e \t  \n  " %(rec_err) )  
         #-----------------------------------------------------------------------------------------------------------------------------------
 

@@ -12,8 +12,10 @@ Why does this file exist, and why __main__? For more info, read:
 from cli import main
 
 
-
-#import Time_Frequency_Analysis
+#execute the __main__.py module in order to test (and compare with the library) the transforms  
+# 1)execution time 2)perfect reconstruction property 3)visualization   
+#For NSGT_CQT : python __main__.py --front_end NSGT -p "{ ksi_min : 32.07 , ksi_max : 3907.07 , B : 12 }" --plot_spectrograms True
+#For STFT : python __main__.py --front_end STFT -p "{ a : 1024 , M : 4096 , support : 4096 }" --plot_spectrograms True
 
 if __name__ == "__main__":
 
