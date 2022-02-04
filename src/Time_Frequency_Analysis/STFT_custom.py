@@ -1,3 +1,11 @@
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+#from audio_proc_test import *
+#from DFT_routines import *
+>>>>>>> 524fa7a02a56fa829bc3dca77678617928023d3b
+>>>>>>> 8728b6547a7ac72397a6a1e3d53e726d0b64d66f
 from numpy.fft import rfft,irfft
 import numpy as np
 import math
