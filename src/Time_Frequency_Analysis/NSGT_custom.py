@@ -1,9 +1,9 @@
 
 import numpy as np
-import scipy.signal
-from DFT_routines import *
+import scipy
+from numpy.fft import fft,ifft,rfft,irfft
 import os
-import nsgt
+
 
 
 
@@ -119,7 +119,7 @@ class NSGT_CUSTOM:
             
             #creating the extended indices and filter for the small filter (zero padding)---------------------
             fft_len_old = len(self.bandwidth_inds[0]) 
-            g_tmp = np.roll( signal.tukey(fft_len_old*2) , fft_len_old )[:fft_len_old]
+            g_tmp = np.roll( scipy.signal.tukey(fft_len_old*2) , fft_len_old )[:fft_len_old]
             g_tmp = np.concatenate( ( g_tmp , np.zeros(fft_len-fft_len_old) ) )
             self.g.append(g_tmp)
             
@@ -154,7 +154,7 @@ class NSGT_CUSTOM:
                 #creating the filter:
                 fft_len_old = len(big_filter_inds)
                 padding_len = fft_len-fft_len_old
-                g_tmp = signal.tukey(fft_len_old*2)[:fft_len_old]
+                g_tmp = scipy.signal.tukey(fft_len_old*2)[:fft_len_old]
                 g_tmp = np.concatenate( ( np.zeros(padding_len) , g_tmp ) )
                 self.g.append(g_tmp)
             
@@ -168,7 +168,7 @@ class NSGT_CUSTOM:
             else:
                 #creating the filter:
                 new_inds.append(big_filter_inds)
-                g_tmp = signal.tukey(fft_len*2)[:fft_len]
+                g_tmp = scipy.signal.tukey(fft_len*2)[:fft_len]
                 self.g.append(g_tmp)
 
                 #IN THIS CASE for this filter the new_inds remains the same..
@@ -184,12 +184,12 @@ class NSGT_CUSTOM:
 
             #Creating the small filter:
             fft_len = len(self.bandwidth_inds[0])
-            g_small = np.roll( signal.tukey(fft_len*2) , fft_len )[:fft_len]
+            g_small = np.roll( scipy.signal.tukey(fft_len*2) , fft_len )[:fft_len]
             self.g_additional.append(g_small)
 
             #Creating the big filter:
             fft_len = len(self.bandwidth_inds[-1])
-            g_big = signal.tukey(fft_len*2)[:fft_len]
+            g_big = scipy.signal.tukey(fft_len*2)[:fft_len]
 
             self.g_additional.append(g_big)
 
@@ -338,65 +338,65 @@ class NSGT_CUSTOM:
 
 
 
-if __name__ =='__main__':
+# if __name__ =='__main__':
 
-    x,s = load_music()
+#     x,s = load_music()
 
-    def cputime():
-        utime, stime, cutime, cstime, elapsed_time = os.times()
-        return utime
+#     def cputime():
+#         utime, stime, cutime, cstime, elapsed_time = os.times()
+#         return utime
 
-    def timeis(func):
-        '''Decorator that reports the execution time.'''
+#     def timeis(func):
+#         '''Decorator that reports the execution time.'''
   
-        def wrap(*args, **kwargs):
-            start = time.time()
-            result = func(*args, **kwargs)
-            end = time.time()
+#         def wrap(*args, **kwargs):
+#             start = time.time()
+#             result = func(*args, **kwargs)
+#             end = time.time()
             
-            print(func.__name__, end-start)
-            return result
-        return wrap
+#             print(func.__name__, end-start)
+#             return result
+#         return wrap
 
 
-    #NSGT cqt
-    ksi_min = 32.7
-    ksi_max = 5000
-    real=1
-    #ksi_max = 21049
-    B=12
-    ksi_s = s
-    #ksi_max =ksi_s//2-1
-    matrix_form = True
-    reduced_form = False
+#     #NSGT cqt
+#     ksi_min = 32.7
+#     ksi_max = 5000
+#     real=1
+#     #ksi_max = 21049
+#     B=12
+#     ksi_s = s
+#     #ksi_max =ksi_s//2-1
+#     matrix_form = True
+#     reduced_form = False
 
-    #f = x[:len(x)-1]
-    f=x
-    L = len(f)
+#     #f = x[:len(x)-1]
+#     f=x
+#     L = len(f)
 
-    t1 = cputime()
-    nsgt = NSGT_CUSTOM(ksi_s,ksi_min,ksi_max,B,L,matrix_form)
+#     t1 = cputime()
+#     nsgt = NSGT_CUSTOM(ksi_s,ksi_min,ksi_max,B,L,matrix_form)
     
-    c = nsgt.forward(f)
-    f_rec = nsgt.backward(c)
-    t2 = cputime()
+#     c = nsgt.forward(f)
+#     f_rec = nsgt.backward(c)
+#     t2 = cputime()
 
-    norm = lambda x: np.sqrt(np.sum(np.abs(np.square(x))))
-    rec_err = norm(f_rec - f)/norm(f)
-    print("Reconstruction error : %.16e \t  \n  " %(rec_err) )
-    print("Calculation time: %.3fs"%(t2-t1))
-    #----------------------------------------------------------------------------------------
+#     norm = lambda x: np.sqrt(np.sum(np.abs(np.square(x))))
+#     rec_err = norm(f_rec - f)/norm(f)
+#     print("Reconstruction error : %.16e \t  \n  " %(rec_err) )
+#     print("Calculation time: %.3fs"%(t2-t1))
+#     #----------------------------------------------------------------------------------------
 
-    #compare withe library:
-    t1 = cputime()
-    nsgt = instantiate_NSGT( f , s , 'log',ksi_min,ksi_max,B*7,matrix_form,reduced_form,multithreading=False)
-    c1 = NSGT_forword(f,nsgt,pyramid_lvl=0,wavelet_type='db2')
-    f_rec1 = NSGT_backward(c1,nsgt,pyramid_lvl=0,wavelet_type='db2')
-    rec_err = norm(f_rec1 - f)/norm(f)
-    t2 = cputime()
+#     #compare withe library:
+#     t1 = cputime()
+#     nsgt = instantiate_NSGT( f , s , 'log',ksi_min,ksi_max,B*7,matrix_form,reduced_form,multithreading=False)
+#     c1 = NSGT_forword(f,nsgt,pyramid_lvl=0,wavelet_type='db2')
+#     f_rec1 = NSGT_backward(c1,nsgt,pyramid_lvl=0,wavelet_type='db2')
+#     rec_err = norm(f_rec1 - f)/norm(f)
+#     t2 = cputime()
 
-    print("Reconstruction error : %.16e \t  \n  " %(rec_err) )
-    print("Calculation time: %.3fs"%(t2-t1))
+#     print("Reconstruction error : %.16e \t  \n  " %(rec_err) )
+#     print("Calculation time: %.3fs"%(t2-t1))
 
 a=0
 

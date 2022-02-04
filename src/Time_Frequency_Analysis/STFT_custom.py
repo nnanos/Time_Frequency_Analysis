@@ -1,7 +1,6 @@
-from audio_proc_test import *
-from DFT_routines import *
 from numpy.fft import rfft,irfft
 import numpy as np
+import math
 
 #THIS MODULE TAKES ARGUMENTS  (the obvious input signal x)
 # 1)hopsize : a  
@@ -14,33 +13,21 @@ import numpy as np
 # 2)M>=support (painless case condition) preferably =
 # 3)M must be divisible by a ( i.e. M=4096 a=256,512,1024,2048 )
 
-#PADD TO NEAREST POWER OF TWO---------------------------------------------------
-# def PadRight(arr):
-#     nextPower = NextPowerOfTwo(len(arr))
-#     deficit = int(math.pow(2, nextPower) - len(arr))
-
-#     arr = np.concatenate(( arr,np.zeros(deficit, dtype=arr.dtype)))
-#     return arr
-
-# def NextPowerOfTwo(number):
-#     # Returns next power of two following 'number'
-#     return math.ceil(math.log(number,2))    
-# #---------------------------------------------------------------------------
 
 
 class STFT_CUSTOM:
 
     #PADD TO NEAREST POWER OF TWO (auxiliary functiuons)---------------------------------------------------
+    def NextPowerOfTwo(self,number):
+        # Returns next power of two following 'number'
+        return math.ceil(math.log(number,2))    
+    
     def PadRight(self,arr):
-        nextPower = NextPowerOfTwo(len(arr))
+        nextPower = self.NextPowerOfTwo(len(arr))
         deficit = int(math.pow(2, nextPower) - len(arr))
 
         arr = np.concatenate(( arr,np.zeros(deficit, dtype=arr.dtype)))
         return arr
-
-    def NextPowerOfTwo(self,number):
-        # Returns next power of two following 'number'
-        return math.ceil(math.log(number,2))    
     #---------------------------------------------------------------------------
 
 
@@ -98,7 +85,8 @@ class STFT_CUSTOM:
 
         #DETECTING THE LATEST SHARP TRANSITION (in order to calculate the start indice where the zero padded columns added)
         h = [1,-1]
-        ind = np.argmax(np.flip(LTI_filtering(h,np.flip(self.nnz_inds))))
+        #ind = np.argmax(np.flip(LTI_filtering(h,np.flip(self.nnz_inds))))
+        ind = np.argmax(np.flip(np.convolve(h,np.flip(self.nnz_inds))))
         #ind = np.argmax(np.flip(nnz_inds))
         self.nb_zeroes = len(self.nnz_inds)-1 - (ind)
         X_orig = X_padded[:,:ind+1] 
@@ -157,32 +145,32 @@ class STFT_CUSTOM:
 
 
 
-if __name__ =='__main__':
-    #load music
-    x,s = load_music()
+# if __name__ =='__main__':
+#     #load music
+#     x,s = load_music()
 
-    def cputime():
-        utime, stime, cutime, cstime, elapsed_time = os.times()
-        return utime
+#     def cputime():
+#         utime, stime, cutime, cstime, elapsed_time = os.times()
+#         return utime
 
-    a = 512
-    M = 4096
-    support = 4096
-    g = np.hanning(support) 
-    L = len(x)      
-
-
-    t1 = cputime()
-    stft = STFT_CUSTOM(g,a,M,support,L)
-    X = stft.forward(x)
-    x_rec = stft.backward(X)
-    t2 = cputime()
+#     a = 512
+#     M = 4096
+#     support = 4096
+#     g = np.hanning(support) 
+#     L = len(x)      
 
 
-    norm = lambda x: np.sqrt(np.sum(np.abs(np.square(x))))
-    rec_err = norm(x_rec - x)/norm(x)
-    print("Calculation time: %.3fs"%(t2-t1))
-    print("Reconstruction error : %.16e \t  \n  " %(rec_err) )    
+#     t1 = cputime()
+#     stft = STFT_CUSTOM(g,a,M,support,L)
+#     X = stft.forward(x)
+#     x_rec = stft.backward(X)
+#     t2 = cputime()
+
+
+#     norm = lambda x: np.sqrt(np.sum(np.abs(np.square(x))))
+#     rec_err = norm(x_rec - x)/norm(x)
+#     print("Calculation time: %.3fs"%(t2-t1))
+#     print("Reconstruction error : %.16e \t  \n  " %(rec_err) )    
 
 
 a = 0
