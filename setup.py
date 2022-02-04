@@ -72,7 +72,12 @@ setup(
     ],
     python_requires='>=3.6',
     install_requires=[
-        # eg: 'aspectlib==1.1.1', 'six>=1.7',
+        "Audio_proc_lib",
+        "Plotting_funcs",
+        "numpy",
+        "scipy",
+        "signal"
+        
     ],
     extras_require={
         # eg:
