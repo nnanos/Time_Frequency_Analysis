@@ -23,7 +23,7 @@ def read(*names, **kwargs):
 
 setup(
     name='Time-Frequency-Analysis',
-    version='0.0.1',
+    version='0.0.2',
     license='MIT',
     description='Time frequency transforms under the mathematical framework of frames',
     long_description='%s\n%s' % (

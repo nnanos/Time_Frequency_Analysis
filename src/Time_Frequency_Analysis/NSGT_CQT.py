@@ -18,7 +18,7 @@ import time
 #2)SLice CQT
 
 
-class NSGT_CUSTOM:
+class NSGT_cqt:
 
     def timeis(func):
         '''Decorator that reports the execution time.'''
@@ -363,109 +363,109 @@ class NSGT_CUSTOM:
 
 
 
-def plot_NSGT1(c):
-    from scipy import interpolate
-    c_matrix = []
-    max_win_len = np.array( list( map( lambda x : len(x) , c ) ) ).max()
-    for n in range(len(c)):
-        N = len(c[n])
-        fk = np.arange(N)*(22050/N)
-        (x,y) = (fk,np.abs(c[n]))
+# def plot_NSGT1(c):
+#     from scipy import interpolate
+#     c_matrix = []
+#     max_win_len = np.array( list( map( lambda x : len(x) , c ) ) ).max()
+#     for n in range(len(c)):
+#         N = len(c[n])
+#         fk = np.arange(N)*(22050/N)
+#         (x,y) = (fk,np.abs(c[n]))
 
-        f = interpolate.interp1d(x, y)
+#         f = interpolate.interp1d(x, y)
 
-        xnew = np.linspace(0, fk[N-1], max_win_len)
-        ynew = f(xnew)
-        c_matrix.append( ynew )  
-
-
-    grid = np.array(c_matrix).T
-    np.log10(grid, out=grid)
-    grid *= 20
-    pmax = np.percentile(grid, 99.99)
-    plt.imshow(grid, aspect='auto', origin='lower', vmin=pmax-80, vmax=pmax,extent=[0,200,0,22050])
-
-    plt.ylim(bottom=100)
-
-    plt.yscale("log")
-
-    loc = np.array([  100.,  1000., 10000.,22050.])
-    labels = [ plt.Text(100.0, 0, '$\\mathdefault{100}$') , plt.Text(1000.0, 0, '$\\mathdefault{1000}$') , plt.Text(10000.0, 0, '$\\mathdefault{10000}$'), plt.Text(22050.0, 0, '$\\mathdefault{22050}$')  ]
-    plt.yticks(loc,labels)    
-
-    plt.ylim(top=22050)
+#         xnew = np.linspace(0, fk[N-1], max_win_len)
+#         ynew = f(xnew)
+#         c_matrix.append( ynew )  
 
 
-    plt.colorbar()
-    plt.show()
+#     grid = np.array(c_matrix).T
+#     np.log10(grid, out=grid)
+#     grid *= 20
+#     pmax = np.percentile(grid, 99.99)
+#     plt.imshow(grid, aspect='auto', origin='lower', vmin=pmax-80, vmax=pmax,extent=[0,200,0,22050])
+
+#     plt.ylim(bottom=100)
+
+#     plt.yscale("log")
+
+#     loc = np.array([  100.,  1000., 10000.,22050.])
+#     labels = [ plt.Text(100.0, 0, '$\\mathdefault{100}$') , plt.Text(1000.0, 0, '$\\mathdefault{1000}$') , plt.Text(10000.0, 0, '$\\mathdefault{10000}$'), plt.Text(22050.0, 0, '$\\mathdefault{22050}$')  ]
+#     plt.yticks(loc,labels)    
+
+#     plt.ylim(top=22050)
+
+
+#     plt.colorbar()
+#     plt.show()
 
 
 
-if __name__ =='__main__':
+# if __name__ =='__main__':
 
-    from Audio_proc_lib.audio_proc_functions import * 
-    x,s = librosa.load( '/home/nnanos/Desktop/sounds/C4.wav',sr=44100 )
+#     from Audio_proc_lib.audio_proc_functions import * 
+#     x,s = librosa.load( '/home/nnanos/Desktop/sounds/C4.wav',sr=44100 )
     
 
-    #x,s = load_music()
+#     #x,s = load_music()
 
-    def cputime():
-        utime, stime, cutime, cstime, elapsed_time = os.times()
-        return utime
+#     def cputime():
+#         utime, stime, cutime, cstime, elapsed_time = os.times()
+#         return utime
 
-    def timeis(func):
-        '''Decorator that reports the execution time.'''
+#     def timeis(func):
+#         '''Decorator that reports the execution time.'''
   
-        def wrap(*args, **kwargs):
-            start = time.time()
-            result = func(*args, **kwargs)
-            end = time.time()
+#         def wrap(*args, **kwargs):
+#             start = time.time()
+#             result = func(*args, **kwargs)
+#             end = time.time()
             
-            print(func.__name__, end-start)
-            return result
-        return wrap
+#             print(func.__name__, end-start)
+#             return result
+#         return wrap
 
 
-    #NSGT cqt
-    ksi_min = 32.7
-    ksi_max = 5000
-    real=1
-    #ksi_max = 21049
-    B=12
-    ksi_s = s
-    #ksi_max =ksi_s//2-1
-    matrix_form = False
-    reduced_form = False
+#     #NSGT cqt
+#     ksi_min = 32.7
+#     ksi_max = 5000
+#     real=1
+#     #ksi_max = 21049
+#     B=12
+#     ksi_s = s
+#     #ksi_max =ksi_s//2-1
+#     matrix_form = True
+#     reduced_form = False
 
-    #f = x[:len(x)-1]
-    f=x
-    L = len(f)
+#     #f = x[:len(x)-1]
+#     f=x
+#     L = len(f)
 
-    t1 = cputime()
-    nsgt = NSGT_CUSTOM(ksi_s,ksi_min,ksi_max,B,L,matrix_form)
+#     t1 = cputime()
+#     nsgt = NSGT_cqt(ksi_s,ksi_min,ksi_max,B,L,matrix_form)
     
-    c = nsgt.forward(f)
-    f_rec = nsgt.backward(c)
-    t2 = cputime()
+#     c = nsgt.forward(f)
+#     f_rec = nsgt.backward(c)
+#     t2 = cputime()
 
-    norm = lambda x: np.sqrt(np.sum(np.abs(np.square(x))))
-    rec_err = norm(f_rec - f)/norm(f)
-    print("Reconstruction error : %.16e \t  \n  " %(rec_err) )
-    print("Calculation time: %.3fs"%(t2-t1))
-    #----------------------------------------------------------------------------------------
+#     norm = lambda x: np.sqrt(np.sum(np.abs(np.square(x))))
+#     rec_err = norm(f_rec - f)/norm(f)
+#     print("Reconstruction error : %.16e \t  \n  " %(rec_err) )
+#     print("Calculation time: %.3fs"%(t2-t1))
+#     #----------------------------------------------------------------------------------------
 
-    #compare withe library:
-    t1 = cputime()
-    nsgt = instantiate_NSGT( f , s , 'log',ksi_min,ksi_max,B*7,matrix_form,reduced_form,multithreading=False)
-    c1 = NSGT_forword(f,nsgt,pyramid_lvl=0,wavelet_type='db2')
-    f_rec1 = NSGT_backward(c1,nsgt,pyramid_lvl=0,wavelet_type='db2')
-    rec_err = norm(f_rec1 - f)/norm(f)
-    t2 = cputime()
+#     #compare withe library:
+#     t1 = cputime()
+#     nsgt = instantiate_NSGT( f , s , 'log',ksi_min,ksi_max,B*7,matrix_form,reduced_form,multithreading=False)
+#     c1 = NSGT_forword(f,nsgt,pyramid_lvl=0,wavelet_type='db2')
+#     f_rec1 = NSGT_backward(c1,nsgt,pyramid_lvl=0,wavelet_type='db2')
+#     rec_err = norm(f_rec1 - f)/norm(f)
+#     t2 = cputime()
 
-    print("Reconstruction error : %.16e \t  \n  " %(rec_err) )
-    print("Calculation time: %.3fs"%(t2-t1))
+#     print("Reconstruction error : %.16e \t  \n  " %(rec_err) )
+#     print("Calculation time: %.3fs"%(t2-t1))
 
 
-    a = 0
+#     a = 0
 
 
