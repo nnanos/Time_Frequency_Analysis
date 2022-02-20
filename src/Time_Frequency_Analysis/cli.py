@@ -18,10 +18,12 @@ Why does this file exist, and why not put this in __main__?
 import argparse
 import yaml
 
+import librosa
 from Audio_proc_lib.audio_proc_functions import * 
 from Plotting_funcs.Plotting_util_and_other import *
-import NSGT_custom,STFT_custom
+import NSGT_CQT,STFT_custom,SCALE_FRAMES
 import os
+import scipy.signal as sg
 
 
 parser = argparse.ArgumentParser(description='Command description.')
@@ -40,11 +42,75 @@ parser.add_argument('--plot_spectrograms', type=str, default="True",
 args, _ = parser.parse_known_args()
 
 
+def plot_transform(c,transform,matrix_form,sr):
+
+    if transform=="NSGT_SCALE_FRAMES":
+
+      if not(matrix_form):
+        from scipy import interpolate
+        c_matrix = []
+        max_win_len = np.array( list( map( lambda x : len(x) , c ) ) ).max()
+        for n in range(len(c)):
+            N = len(c[n])
+            fk = np.arange(N)*(22050/N)
+            (x,y) = (fk,np.abs(c[n]))
+
+            f = interpolate.interp1d(x, y)
+
+            xnew = np.linspace(0, fk[N-1], max_win_len)
+            ynew = f(xnew)
+            c_matrix.append( ynew )  
+
+
+        grid = np.array(c_matrix).T
+        np.log10(grid, out=grid)
+        grid *= 20
+        pmax = np.percentile(grid, 99.99)
+        plt.imshow(grid, cmap="inferno" ,aspect='auto', origin='lower', vmin=pmax-80, vmax=pmax,extent=[0,200,0,22050])
+
+        plt.ylim(bottom=100)
+
+        plt.yscale("log")
+
+        loc = np.array([  100.,  1000., 10000.,22050.])
+        labels = [ plt.Text(100.0, 0, '$\\mathdefault{100}$') , plt.Text(1000.0, 0, '$\\mathdefault{1000}$') , plt.Text(10000.0, 0, '$\\mathdefault{10000}$'), plt.Text(22050.0, 0, '$\\mathdefault{22050}$')  ]
+        plt.yticks(loc,labels)    
+
+        plt.ylim(top=22050)
+
+
+        plt.colorbar()
+        plt.ylabel("Hz (log scale)")
+        #plt.show()
+
+      else:
+        plot_spectrogram(np.array(c).T,44100,"log")
+
+
+
+    if transform=="NSGT_CQT":
+
+      if not(matrix_form):
+        plot_cqt(f,c)
+      else:
+        plot_spectrogram(c,44100,"cqt_note")
+
+    if transform=="STFT":
+      librosa.display.specshow(librosa.amplitude_to_db(np.abs(c), ref=np.max),
+                    sr=sr, x_axis='time', y_axis="log")
+      plt.colorbar(format='%+2.0f dB')
+      #plt.title('Constant-Q power spectrum')
+      plt.tight_layout()
+
+      
+
 
 def main():    
 
     #load music
     x,s = load_music()
+    # x = np.ones(262144)
+    # s = 44100
 
 
     def cputime():
@@ -65,7 +131,7 @@ def main():
         return wrap
 
 
-    if args.front_end=="NSGT":
+    if args.front_end=="NSGT_CQT":
         #NSGT cqt
         # ksi_min = 32.7
         # ksi_max = 5000
@@ -74,15 +140,15 @@ def main():
         # B=12
         ksi_s = s
         #ksi_max =ksi_s//2-1
-        matrix_form = True
-        reduced_form = False
+        # matrix_form = True
+
 
         #f = x[:len(x)-1]
         f=x
         L = len(f)
 
         t1 = cputime()
-        nsgt = NSGT_custom.NSGT_CUSTOM(ksi_s,args.params["ksi_min"],args.params["ksi_max"],args.params["B"],L,matrix_form)
+        nsgt = NSGT_CQT.NSGT_cqt(ksi_s=args.params["ksi_s"],ksi_min=args.params["ksi_min"],ksi_max=args.params["ksi_max"],B=args.params["B"],L = L,matrix_form=args.params["matrix_form"])
         
         c = nsgt.forward(f)
         f_rec = nsgt.backward(c)
@@ -90,33 +156,93 @@ def main():
 
         norm = lambda x: np.sqrt(np.sum(np.abs(np.square(x))))
         rec_err = norm(f_rec - f)/norm(f)
-        print("Reconstruction error : %.16e \t  \n  " %(rec_err) )
+        print("LOG for the NSGT_CQT module (mine implementation https://github.com/nnanos/Time_Frequency_Analysis.git)-----------------------\n\n")
+        print("Reconstruction relative error : %.16e \t  \n  " %(rec_err) )
         print("Calculation time (forward and backward): %.3fs"%(t2-t1))
+        if not(args.params["matrix_form"]): 
+            l = np.array( list( map( lambda x : len(x) , c ) )).sum()
+        else:
+            l = np.prod(c.shape)
+        red = l/len(x)
+        print("Redunduncy of the transform: %.3f\n\n\n"%(red))        
         #----------------------------------------------------------------------------------------
 
         #compare with library:
         t1 = cputime()
-        nsgt = instantiate_NSGT( f , ksi_s , 'log',args.params["ksi_min"],args.params["ksi_max"],args.params["B"]*7,matrix_form,reduced_form,multithreading=False)
+        nsgt = instantiate_NSGT( f , ksi_s , 'log',args.params["ksi_min"],args.params["ksi_max"],args.params["B"]*7,reducedform=0,matrixform=args.params["matrix_form"],multithreading=False)
         c1 = NSGT_forword(f,nsgt,pyramid_lvl=0,wavelet_type='db2')
         f_rec1 = NSGT_backward(c1,nsgt,pyramid_lvl=0,wavelet_type='db2')
         rec_err = norm(f_rec1 - f)/norm(f)
         t2 = cputime()
 
-        print("Reconstruction error : %.16e \t  \n  " %(rec_err) )
-        print("Calculation time (forward and backward): %.3fs"%(t2-t1))      
+        print("LOG for the nsgt library (implemented by Thomas grrr https://github.com/grrrr/nsgt.git)-----------------------\n\n")
+        print("Reconstruction relative error : %.16e \t  \n  " %(rec_err) )
+        print("Calculation time (forward and backward): %.3fs"%(t2-t1)) 
+
+        if not(args.params["matrix_form"]): 
+            l = np.array( list( map( lambda x : len(x) , c1 ) )).sum()
+        else:
+            l = np.prod(c1.shape)
+        red = l/len(x)
+        print("Redunduncy of the transform: %.3f"%(red))
+
         #_--------------------------------------------------------------------------------------------
+
 
 
 
         if args.plot_spectrograms=="True":
-          plot_spectrogram(c,ksi_s,"linear")
-          plt.title("NSGT_custom")
+          plot_transform(c,transform=args.front_end,sr=args.params["ksi_s"],matrix_form=args.params["matrix_form"])
+          plt.title("NSGT_cqt_mine")
           plt.figure()
-          plot_spectrogram(c1,ksi_s,"linear")
-          plt.title("NSGT_library")  
+          plot_transform(c1,transform=args.front_end,sr=args.params["ksi_s"],matrix_form=args.params["matrix_form"])
+          plt.title("NSGT_grr")  
           plt.show()
 
         #_--------------------------------------------------------------------------------------------
+
+
+    elif args.front_end=="NSGT_SCALE_FRAMES":     
+      # #params
+      # min_scl = 128
+      # multiproc = True
+      # nb_processes = 6
+      # ovrlp_fact = 1/10
+      # #middle_window = sg.tukey
+      # middle_window = np.hanning  
+
+      lookup = {
+        "np.hanning" : np.hanning,
+        "sg.tukey" : sg.tukey
+      } 
+
+      middle_window = lookup[ args.params["middle_window"] ]
+
+      t1 = cputime()
+      onsets = librosa.onset.onset_detect(y=x, sr=s, units="samples")
+      scale_frame_obj = SCALE_FRAMES.scale_frame(ksi_s=args.params["ksi_s"],min_scl=args.params["min_scl"],overlap_factor=args.params["ovrlp_fact"],onset_seq=onsets,middle_window=middle_window,L=len(x),matrix_form=args.params["matrix_form"],multiproc=args.params["multiproc"])
+          
+      c = scale_frame_obj.forward(x)
+      x_rec = scale_frame_obj.backward(c)
+      t2 = cputime()
+
+      norm = lambda x: np.sqrt(np.sum(np.abs(np.square(x))))
+      rec_err = norm(x_rec - x)/norm(x)
+      print("LOG for the SCALE_FRAMES module (mine implementation https://github.com/nnanos/Time_Frequency_Analysis.git)-----------------------\n\n")      
+      print("Reconstruction relative error : %.16e \t  \n  " %(rec_err) )
+      print("Calculation time (forward and backward procedures): %.3fs"%(t2-t1))    
+      if not(args.params["matrix_form"]): 
+          l = np.array( list( map( lambda x : len(x) , c ) )).sum()
+      else:
+          l = np.prod(np.array(c).shape)
+      red = l/len(x)
+      print("Redunduncy of the transform: %.3f"%(red))        
+
+      if args.plot_spectrograms=="True":
+        plot_transform(c,transform=args.front_end,sr=s,matrix_form=args.params["matrix_form"])
+        plt.title("Scale_frames_custom")      
+        plt.show()
+
 
     elif args.front_end=="STFT":
         #TESTING STFT_custom----------------------------------------------
@@ -124,6 +250,7 @@ def main():
         # M = 4096
         # support = 4096
         g = np.hanning(args.params["support"]) 
+        x = np.concatenate((x,[0]))
         L = len(x)      
 
 
@@ -134,8 +261,9 @@ def main():
         t2 = cputime()
         norm = lambda x: np.sqrt(np.sum(np.abs(np.square(x))))
         rec_err = norm(x_rec - x)/norm(x)
-        print("Calculation time (forward and backward): %.3fs"%(t2-t1))
-        print("Reconstruction error : %.16e \t  \n  " %(rec_err) )  
+        print("LOG for the STFT_custom module (mine implementation https://github.com/nnanos/Time_Frequency_Analysis.git)-----------------------\n\n")
+        print("Calculation time (forward and backward procedures): %.3fs"%(t2-t1))
+        print("Reconstruction relative error : %.16e \t  \n  " %(rec_err) )  
         #-----------------------------------------------------------------------------------------------
 
         #compare with library:
@@ -144,17 +272,22 @@ def main():
         x_rec1 = librosa.istft(X1,  hop_length=args.params["a"], win_length=args.params["support"], window=g )
         t2 = cputime()
         rec_err = norm(x_rec1 - x[:len(x_rec1)] )/norm(x[:len(x_rec1)])
-        print("Calculation time (forward and backward): %.3fs"%(t2-t1))
-        print("Reconstruction error : %.16e \t  \n  " %(rec_err) )  
+        print("LOG for the stft function of librosa ( http://librosa.org/doc/main/generated/librosa.stft.html )-----------------------\n\n")
+        print("Calculation time (forward and backward procedures): %.3fs"%(t2-t1))
+        print("Reconstruction relative error : %.16e \t  \n  " %(rec_err) )  
         #-----------------------------------------------------------------------------------------------------------------------------------
+
+        l = np.prod(X.shape)
+        red = l/len(x)
+        print("Redunduncy of the transform: %.3f"%(red))        
 
 
         if args.plot_spectrograms=="True":
-          plot_spectrogram(X,s)
+          plot_transform(X,transform=args.front_end,sr=s,matrix_form=1)
           plt.title("STFT_custom")
 
           plt.figure()
-          plot_spectrogram(X1,s)
+          plot_transform(X1,transform=args.front_end,sr=s,matrix_form=1)
           plt.title("STFT_librsoa")
           plt.show()
 
