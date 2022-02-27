@@ -44,6 +44,7 @@ args, _ = parser.parse_known_args()
 
 def plot_transform(c,transform,matrix_form,sr,redunduncy):
 
+
     if transform=="NSGT_SCALE_FRAMES":
 
       if not(matrix_form):
@@ -61,6 +62,7 @@ def plot_transform(c,transform,matrix_form,sr,redunduncy):
             ynew = f(xnew)
             c_matrix.append( ynew )  
 
+
         grid = np.array(c_matrix).T
         np.log10(grid, out=grid)
         grid *= 20
@@ -69,6 +71,7 @@ def plot_transform(c,transform,matrix_form,sr,redunduncy):
         top_hz = sr//2
         top_time = (np.array( list( map( lambda x : len(x) , c ) )).sum()/redunduncy)*(1/sr)
         plt.imshow(grid, cmap="inferno" ,aspect='auto', origin='lower', vmin=pmax-80, vmax=pmax,extent=[0,top_time,0,top_hz])
+
 
         plt.ylim(bottom=100)
 
@@ -81,9 +84,11 @@ def plot_transform(c,transform,matrix_form,sr,redunduncy):
         plt.ylim(top=top_hz)
 
 
+
         plt.colorbar()
         plt.ylabel("Hz (log scale)")
         plt.xlabel("time (sec)")
+
         #plt.show()
 
       else:
@@ -165,8 +170,6 @@ def plot_transform(c,transform,matrix_form,sr,redunduncy):
       plt.tight_layout()
 
 
-      
-
 
 def main():    
 
@@ -228,6 +231,7 @@ def main():
             l = np.prod(c.shape)
         red = l/len(x)
         print("Redunduncy of the transform: %.3f\n\n\n"%(2*red))        
+
         #----------------------------------------------------------------------------------------
 
         #compare with library:
@@ -249,6 +253,7 @@ def main():
         red1 = l/len(x)
         print("Redunduncy of the transform: %.3f"%(red1))
 
+
         #_--------------------------------------------------------------------------------------------
 
 
@@ -259,6 +264,7 @@ def main():
           plt.title("NSGT_cqt_mine")
           plt.figure()
           plot_transform(c1,transform=args.front_end,sr=args.params["ksi_s"],matrix_form=args.params["matrix_form"],redunduncy=red1)
+
           plt.title("NSGT_grr")  
           plt.show()
 
@@ -293,6 +299,7 @@ def main():
       else:
         onsets = librosa.onset.onset_detect(y=x, sr=args.params["ksi_s"], units="samples")
       
+
       scale_frame_obj = SCALE_FRAMES.scale_frame(ksi_s=args.params["ksi_s"],min_scl=args.params["min_scl"],overlap_factor=args.params["ovrlp_fact"],onset_seq=onsets,middle_window=middle_window,L=len(x),matrix_form=args.params["matrix_form"],multiproc=args.params["multiproc"])
           
       c = scale_frame_obj.forward(x)
@@ -313,6 +320,7 @@ def main():
 
       if args.plot_spectrograms=="True":
         plot_transform(c,transform=args.front_end,sr=s,matrix_form=args.params["matrix_form"],redunduncy=red)
+
         plt.title("Scale_frames_custom")      
         plt.show()
 
@@ -340,6 +348,7 @@ def main():
         l = np.prod(X.shape)
         red = l/len(x)
         print("Redunduncy of the transform: %.3f"%(2*red))          
+
         #-----------------------------------------------------------------------------------------------
 
         #compare with library:
@@ -364,6 +373,7 @@ def main():
 
           plt.figure()
           plot_transform(X1,transform=args.front_end,sr=s,matrix_form=1,redunduncy=2*red1)
+
           plt.title("STFT_librsoa")
           plt.show()
 

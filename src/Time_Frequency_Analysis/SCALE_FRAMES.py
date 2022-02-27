@@ -500,6 +500,7 @@ if __name__ =='__main__':
 
 
 
+
     def timeis(func):
         '''Decorator that reports the execution time.'''
 
@@ -522,6 +523,7 @@ if __name__ =='__main__':
     x,s = librosa.load( '/home/nnanos/Downloads/glockenspiel.wav',sr=44100 )
     # x,s = librosa.load( '/home/nnanos/Downloads/hancock.wav',sr=44100 )
     # x = x[:44100*6]    
+
     # x1,s = librosa.load( "/home/nnanos/Desktop/sounds/C4.wav",sr=44100)
     # x2,s = librosa.load( "/home/nnanos/Desktop/sounds/Snare 1.wav",sr=44100)
     # x2 = np.concatenate((x2,np.zeros(len(x1)-len(x2))))
@@ -534,6 +536,7 @@ if __name__ =='__main__':
     multiproc = True
     nb_processes = 6
     ovrlp_fact = 0.5
+
     #middle_window = sg.tukey
     middle_window = np.hanning
     matrix_form = False
