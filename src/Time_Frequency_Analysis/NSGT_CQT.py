@@ -85,7 +85,9 @@ class NSGT_cqt:
         self.K = int(np.ceil(self.B*np.log2(self.ksi_max/self.ksi_min)+1))    
         m = np.arange(self.K-1)+1
         self.fr_range = self.ksi_min*(2**((m-1)/self.B))
-        self.Q = 1/(2**(1/self.B)-2**(-1/self.B))  
+        #self.Q = 1/(2**(1/self.B)-2**(-1/self.B))  
+        #self.Q = self.fr_range[0]/(self.fr_range[1]-self.fr_range[0])
+        self.Q = self.fr_range[5]/(self.fr_range[6]-self.fr_range[4])
 
 
 
@@ -128,6 +130,56 @@ class NSGT_cqt:
         big_filter_inds = list(np.arange(a_b,self.L//2+1))        
 
         self.bandwidth_inds = [small_filter_inds] + nnz_bandwidth_inds + [big_filter_inds]
+
+    def plot_windows(self):
+        #Plot the windows for a small 3sec exerpt of the signal  
+
+        if self.L/44100<=7.0:
+            #first window using Tukey
+            # z_tmp = np.zeros(self.L)
+            # inds = np.arange( self.all_inds[0]["a"],self.all_inds[0]["b"] )            
+            # Ln = self.all_inds[0]["win_len"]
+            # gn = np.roll( sg.tukey( Ln*2 ) , Ln )[:Ln]
+            # z_tmp[inds] = gn
+            # plt.plot(z_tmp)
+
+            # #Creating the small filter:
+            # fft_len = len(self.bandwidth_inds[0])
+            # g_small = np.roll( scipy.signal.tukey(fft_len*2) , fft_len )[:fft_len]
+            # self.g_additional.append(g_small)    
+
+            z_tmp = np.zeros(self.L)       
+            inds = self.bandwidth_inds[0]
+            Lk = len(inds)
+            gk = np.roll( scipy.signal.tukey(Lk*2) , Lk )[:Lk]
+            z_tmp[inds] = gk
+            plt.plot(z_tmp)            
+
+            for k in range(1,self.K-1):
+                z_tmp = np.zeros(self.L)
+                inds = self.bandwidth_inds[k]
+                Lk = len(inds)
+                gk = np.hanning(Lk)
+                z_tmp[inds] = gk
+                plt.plot(z_tmp)
+
+            #last window using Tukey
+            z_tmp = np.zeros(self.L)
+            inds = self.bandwidth_inds[-1]        
+            Lk = len(inds)
+            gk = scipy.signal.tukey(Lk*2)[:Lk]
+            z_tmp[inds] = gk
+            plt.plot(z_tmp)
+
+
+            # #Creating the big filter:
+            # fft_len = len(self.bandwidth_inds[-1])
+            # g_big = scipy.signal.tukey(fft_len*2)[:fft_len]
+
+            # self.g_additional.append(g_big)            
+
+
+            plt.show()        
 
 
 
@@ -351,7 +403,7 @@ class NSGT_cqt:
 
         
         #RECONSTRUCTION
-        f_rec = np.real(irfft(f_rec))
+        f_rec = np.real(irfft(f_rec,self.L))
 
         if self.odd_flag_len:
             #remove the added zero
@@ -401,71 +453,79 @@ class NSGT_cqt:
 
 
 
-# if __name__ =='__main__':
+if __name__ =='__main__':
 
-#     from Audio_proc_lib.audio_proc_functions import * 
-#     x,s = librosa.load( '/home/nnanos/Desktop/sounds/C4.wav',sr=44100 )
+    from Audio_proc_lib.audio_proc_functions import * 
+    x,s = librosa.load( '/home/nnanos/Desktop/sounds/C4.wav',sr=44100 )
     
 
-#     #x,s = load_music()
+    #x,s = load_music()
 
-#     def cputime():
-#         utime, stime, cutime, cstime, elapsed_time = os.times()
-#         return utime
+    def cputime():
+        utime, stime, cutime, cstime, elapsed_time = os.times()
+        return utime
 
-#     def timeis(func):
-#         '''Decorator that reports the execution time.'''
+    def timeis(func):
+        '''Decorator that reports the execution time.'''
   
-#         def wrap(*args, **kwargs):
-#             start = time.time()
-#             result = func(*args, **kwargs)
-#             end = time.time()
+        def wrap(*args, **kwargs):
+            start = time.time()
+            result = func(*args, **kwargs)
+            end = time.time()
             
-#             print(func.__name__, end-start)
-#             return result
-#         return wrap
+            print(func.__name__, end-start)
+            return result
+        return wrap
 
 
-#     #NSGT cqt
-#     ksi_min = 32.7
-#     ksi_max = 5000
-#     real=1
-#     #ksi_max = 21049
-#     B=12
-#     ksi_s = s
-#     #ksi_max =ksi_s//2-1
-#     matrix_form = True
-#     reduced_form = False
+    #NSGT cqt
+    ksi_min = 32.7
+    ksi_max = 3951.07
+    real=1
+    #ksi_max = 21049
+    B=12
+    ksi_s = s
+    #ksi_max =ksi_s//2-1
+    matrix_form = False
+    reduced_form = False
 
-#     #f = x[:len(x)-1]
-#     f=x
-#     L = len(f)
+    #f = x[:len(x)-1]
+    f=x
+    L = len(f)
 
-#     t1 = cputime()
-#     nsgt = NSGT_cqt(ksi_s,ksi_min,ksi_max,B,L,matrix_form)
+    t1 = cputime()
+    nsgt = NSGT_cqt(ksi_s,ksi_min,ksi_max,B,L,matrix_form)
+
+    nsgt.plot_windows()
     
-#     c = nsgt.forward(f)
-#     f_rec = nsgt.backward(c)
-#     t2 = cputime()
+    c = nsgt.forward(f)
+    f_rec = nsgt.backward(c)
+    t2 = cputime()
 
-#     norm = lambda x: np.sqrt(np.sum(np.abs(np.square(x))))
-#     rec_err = norm(f_rec - f)/norm(f)
-#     print("Reconstruction error : %.16e \t  \n  " %(rec_err) )
-#     print("Calculation time: %.3fs"%(t2-t1))
-#     #----------------------------------------------------------------------------------------
+    norm = lambda x: np.sqrt(np.sum(np.abs(np.square(x))))
+    rec_err = norm(f_rec - f)/norm(f)
+    print("Reconstruction error : %.16e \t  \n  " %(rec_err) )
+    print("Calculation time: %.3fs"%(t2-t1))
+    #----------------------------------------------------------------------------------------
 
-#     #compare withe library:
-#     t1 = cputime()
-#     nsgt = instantiate_NSGT( f , s , 'log',ksi_min,ksi_max,B*7,matrix_form,reduced_form,multithreading=False)
-#     c1 = NSGT_forword(f,nsgt,pyramid_lvl=0,wavelet_type='db2')
-#     f_rec1 = NSGT_backward(c1,nsgt,pyramid_lvl=0,wavelet_type='db2')
-#     rec_err = norm(f_rec1 - f)/norm(f)
-#     t2 = cputime()
+    #compare withe library:
+    t1 = cputime()
+    nsgt = instantiate_NSGT( f , s , 'log',ksi_min,ksi_max,B*7,matrix_form,reduced_form,multithreading=False)
+    c1 = NSGT_forword(f,nsgt,pyramid_lvl=0,wavelet_type='db2')
+    f_rec1 = NSGT_backward(c1,nsgt,pyramid_lvl=0,wavelet_type='db2')
+    rec_err = norm(f_rec1 - f)/norm(f)
+    t2 = cputime()
 
-#     print("Reconstruction error : %.16e \t  \n  " %(rec_err) )
-#     print("Calculation time: %.3fs"%(t2-t1))
-
-
-#     a = 0
+    print("Reconstruction error : %.16e \t  \n  " %(rec_err) )
+    print("Calculation time: %.3fs"%(t2-t1))
 
 
+    a = 0
+
+
+
+
+
+# tmp = np.zeros(nsgt.L)
+# tmp[nsgt.bandwidth_inds[40]] = np.hanning(len(nsgt.bandwidth_inds[40]))
+# plt.plot(np.roll(np.real(ifft(tmp)),nsgt.L//2))

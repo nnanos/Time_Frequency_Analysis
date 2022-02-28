@@ -50,44 +50,48 @@ def plot_transform(c,transform,matrix_form,sr,redunduncy):
       if not(matrix_form):
         from scipy import interpolate
         c_matrix = []
-        max_win_len = np.array( list( map( lambda x : len(x) , c ) ) ).max()
-        for n in range(len(c)):
-            N = len(c[n])
-            fk = np.arange(N)*(22050/N)
-            (x,y) = (fk,np.abs(c[n]))
-
-            f = interpolate.interp1d(x, y)
-
-            xnew = np.linspace(0, fk[N-1], max_win_len)
-            ynew = f(xnew)
-            c_matrix.append( ynew )  
-
-
-        grid = np.array(c_matrix).T
-        np.log10(grid, out=grid)
-        grid *= 20
-        pmax = np.percentile(grid, 99.99)
-
-        top_hz = sr//2
         top_time = (np.array( list( map( lambda x : len(x) , c ) )).sum()/redunduncy)*(1/sr)
-        plt.imshow(grid, cmap="inferno" ,aspect='auto', origin='lower', vmin=pmax-80, vmax=pmax,extent=[0,top_time,0,top_hz])
+
+        if top_time<7.0:
+          for n in range(len(c)):
+              N = len(c[n])
+              fk = np.arange(N)*(22050/N)
+              (x,y) = (fk,np.abs(c[n]))
+
+              f = interpolate.interp1d(x, y)
+
+              xnew = np.linspace(0, fk[N-1], max_win_len)
+              ynew = f(xnew)
+              c_matrix.append( ynew )  
 
 
-        plt.ylim(bottom=100)
+          grid = np.array(c_matrix).T
+          np.log10(grid, out=grid)
+          grid *= 20
+          pmax = np.percentile(grid, 99.99)
 
-        plt.yscale("log")
-
-        loc = np.array([  100.,  1000., 10000.,top_hz])
-        labels = [ plt.Text(100.0, 0, '$\\mathdefault{100}$') , plt.Text(1000.0, 0, '$\\mathdefault{1000}$') , plt.Text(10000.0, 0, '$\\mathdefault{10000}$'), plt.Text(top_hz, 0, str(top_hz) )  ]
-        plt.yticks(loc,labels)    
-
-        plt.ylim(top=top_hz)
+          top_hz = sr//2
+          plt.imshow(grid, cmap="inferno" ,aspect='auto', origin='lower', vmin=pmax-80, vmax=pmax,extent=[0,top_time,0,top_hz])
 
 
+          plt.ylim(bottom=100)
 
-        plt.colorbar()
-        plt.ylabel("Hz (log scale)")
-        plt.xlabel("time (sec)")
+          plt.yscale("log")
+
+          loc = np.array([  100.,  1000., 10000.,top_hz])
+          labels = [ plt.Text(100.0, 0, '$\\mathdefault{100}$') , plt.Text(1000.0, 0, '$\\mathdefault{1000}$') , plt.Text(10000.0, 0, '$\\mathdefault{10000}$'), plt.Text(top_hz, 0, str(top_hz) )  ]
+          plt.yticks(loc,labels)    
+
+          plt.ylim(top=top_hz)
+
+
+
+          plt.colorbar()
+          plt.ylabel("Hz (log scale)")
+          plt.xlabel("time (sec)")
+
+        else:
+          print("The signal is too large to perform interpolation for all the time slices")
 
         #plt.show()
 
@@ -212,6 +216,8 @@ def main():
         #f = x[:len(x)-1]
         f=x
         L = len(f)
+
+
 
         t1 = cputime()
         nsgt = NSGT_CQT.NSGT_cqt(ksi_s=args.params["ksi_s"],ksi_min=args.params["ksi_min"],ksi_max=args.params["ksi_max"],B=args.params["B"],L = L,matrix_form=args.params["matrix_form"])

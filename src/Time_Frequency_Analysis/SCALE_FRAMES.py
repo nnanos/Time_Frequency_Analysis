@@ -198,7 +198,7 @@ class scale_frame:
     def plot_windows(self):
         #Plot the windows for a small 3sec exerpt of the signal  
 
-        if self.L/44100<7:
+        if self.L/44100<=7.0:
             #first window using Tukey
             z_tmp = np.zeros(self.L)
             inds = np.arange( self.all_inds[0]["a"],self.all_inds[0]["b"] )            
@@ -394,7 +394,7 @@ class scale_frame:
             bnew = self.all_inds[0]["b"] + nb_zeros_concat
             inds = np.arange( self.all_inds[0]["a"],bnew )    
             fft_len = self.all_inds[0]["win_len"]
-            fn = np.real( irfft( c[0] , norm="ortho" ) )
+            fn = np.real( irfft( c[0]  , norm="ortho" ) )
             gn_dual = np.roll( sg.tukey( fft_len*2 ) , fft_len )[:fft_len]  
             gn_dual = np.concatenate(( gn_dual,np.zeros(nb_zeros_concat) ))/self.frame_operator[inds]        
             f_rec[inds] += fn*gn_dual                 
@@ -404,7 +404,7 @@ class scale_frame:
                 bnew = self.all_inds[n]["b"] + nb_zeros_concat
                 inds = np.arange( self.all_inds[n]["a"],bnew )                
                 fft_len = self.all_inds[n]["win_len"]
-                fn = np.real( irfft( c[n] , norm="ortho" ) )
+                fn = np.real( irfft( c[n]  , norm="ortho" ) )
                 gn_dual = self.all_inds[n]["window"](fft_len)
                 gn_dual = np.concatenate(( gn_dual,np.zeros(nb_zeros_concat) ))/self.frame_operator[inds]      
                 f_rec[inds] += fn*gn_dual    
@@ -415,7 +415,7 @@ class scale_frame:
                 anew = self.all_inds[n]["a"] - nb_zeros_concat                
                 inds = np.arange( anew,self.all_inds[n]["b"] )     
                 fft_len = self.all_inds[n]["win_len"]
-                fn = np.real( irfft( c[n] , norm="ortho" ) )
+                fn = np.real( irfft( c[n]  , norm="ortho" ) )
                 gn_dual = self.all_inds[n]["window"](fft_len)
                 gn_dual = np.concatenate(( np.zeros(nb_zeros_concat),gn_dual ))/self.frame_operator[inds]      
                 f_rec[inds] += fn*gn_dual                                
@@ -425,7 +425,7 @@ class scale_frame:
             anew = self.all_inds[self.N-1]["a"] - nb_zeros_concat               
             inds = np.arange( anew,self.all_inds[self.N-1]["b"] )            
             fft_len = self.all_inds[self.N-1]["win_len"]
-            fn = np.real( irfft( c[self.N-1] , norm="ortho" ) )
+            fn = np.real( irfft( c[self.N-1]  , norm="ortho" ) )
             gn_dual = np.roll( sg.tukey( fft_len*2 ) , fft_len )[fft_len:]
             gn_dual = np.concatenate(( np.zeros(nb_zeros_concat),gn_dual ))/self.frame_operator[inds]                  
             f_rec[inds] += fn*gn_dual     
@@ -436,21 +436,21 @@ class scale_frame:
             #first window using Tukey
             inds = np.arange( self.all_inds[0]["a"],self.all_inds[0]["b"] )
             fft_len = self.all_inds[0]["win_len"]
-            fn = np.real( irfft( c[0] , norm="ortho" ) )
+            fn = np.real( irfft( c[0]  , norm="ortho" ) )
             gn_dual = np.roll( sg.tukey( fft_len*2 ) , fft_len )[:fft_len]/self.frame_operator[inds]  
             f_rec[inds] += fn*gn_dual                 
 
             for n in range(1,self.N-1):
                 fft_len = self.all_inds[n]["win_len"]
                 inds = np.arange(self.all_inds[n]["a"],self.all_inds[n]["b"])
-                fn = np.real( irfft( c[n] , norm="ortho" ) )
+                fn = np.real( irfft( c[n]  , norm="ortho" ) )
                 gn_dual = self.all_inds[n]["window"](fft_len)/self.frame_operator[inds]
                 f_rec[inds] += fn*gn_dual    
              
             #last window using Tukey
             inds = np.arange( self.all_inds[self.N-1]["a"],self.all_inds[self.N-1]["b"] )
             fft_len = self.all_inds[self.N-1]["win_len"]
-            fn = np.real( irfft( c[self.N-1] , norm="ortho" ) )
+            fn = np.real( irfft( c[self.N-1]  , norm="ortho" ) )
             gn_dual = np.roll( sg.tukey( fft_len*2 ) , fft_len )[fft_len:]/self.frame_operator[inds]  
             f_rec[inds] += fn*gn_dual     
 
@@ -519,8 +519,8 @@ if __name__ =='__main__':
 
 
 
-    #x,s = load_music()
-    x,s = librosa.load( '/home/nnanos/Downloads/glockenspiel.wav',sr=44100 )
+    x,s = load_music()
+    #x,s = librosa.load( '/home/nnanos/Downloads/glockenspiel.wav',sr=44100 )
     # x,s = librosa.load( '/home/nnanos/Downloads/hancock.wav',sr=44100 )
     # x = x[:44100*6]    
 
@@ -529,7 +529,12 @@ if __name__ =='__main__':
     # x2 = np.concatenate((x2,np.zeros(len(x1)-len(x2))))
     # x2 = np.roll(periodic_extension(x2,2,"Rectangular",44100),44100)
     # x1 = periodic_extension(x1,2,"Rectangular",44100)
-    #x = x1+x2
+    # x = x1+x2
+
+
+    #x=x[:218112]
+
+
 
     #params
     min_scl = 512
@@ -539,7 +544,7 @@ if __name__ =='__main__':
 
     #middle_window = sg.tukey
     middle_window = np.hanning
-    matrix_form = False
+    matrix_form = True
 
 
     t1 = cputime()
