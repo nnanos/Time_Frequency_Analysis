@@ -53,9 +53,10 @@ def plot_transform(c,transform,matrix_form,sr,redunduncy):
         top_time = (np.array( list( map( lambda x : len(x) , c ) )).sum()/redunduncy)*(1/sr)
 
         if top_time<7.0:
+          max_win_len = np.array( list( map( lambda x : len(x) , c ) ) ).max()
           for n in range(len(c)):
               N = len(c[n])
-              fk = np.arange(N)*(22050/N)
+              fk = np.arange(N)*((sr/2)/N)
               (x,y) = (fk,np.abs(c[n]))
 
               f = interpolate.interp1d(x, y)
@@ -102,9 +103,12 @@ def plot_transform(c,transform,matrix_form,sr,redunduncy):
 
     if transform=="NSGT_CQT":
 
-      if not(matrix_form):
+      top_time = (np.array( list( map( lambda x : len(x) , c ) )).sum())/redunduncy*(1/sr)*2
+
+      if not(matrix_form) and (top_time<6):
         # top_time = (np.array( list( map( lambda x : len(x) , c ) )).sum())/redunduncy*(1/sr)*2
         #plot_cqt(f,c)
+
         from scipy import interpolate
         c_matrix = []
         max_win_len = np.array( list( map( lambda x : len(x) , c ) ) ).max()
@@ -160,11 +164,13 @@ def plot_transform(c,transform,matrix_form,sr,redunduncy):
 
       plt.yscale("log")
 
-      loc = np.array([  100.,  1000., 10000.,22050.])
-      labels = [ plt.Text(100.0, 0, '$\\mathdefault{100}$') , plt.Text(1000.0, 0, '$\\mathdefault{1000}$') , plt.Text(10000.0, 0, '$\\mathdefault{10000}$'), plt.Text(22050.0, 0, '$\\mathdefault{22050}$')  ]
+
+      top_hz = sr//2
+      loc = np.array([  100.,  1000., 10000.,top_hz])
+      labels = [ plt.Text(100.0, 0, '$\\mathdefault{100}$') , plt.Text(1000.0, 0, '$\\mathdefault{1000}$') , plt.Text(10000.0, 0, '$\\mathdefault{10000}$'), plt.Text(top_hz, 0, str(top_hz) )  ]
       plt.yticks(loc,labels)    
 
-      plt.ylim(top=22050)      
+      plt.ylim(top=top_hz)      
       
       plt.colorbar(format='%+2.0f dB')
 
@@ -258,6 +264,8 @@ def main():
             l = np.prod(c1.shape)
         red1 = l/len(x)
         print("Redunduncy of the transform: %.3f"%(red1))
+        #
+        red1 = red1*2
 
 
         #_--------------------------------------------------------------------------------------------
