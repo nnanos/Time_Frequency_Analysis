@@ -21,9 +21,9 @@ You can also install the in-development version with::
 Usage
 =============
 
-::
 
-* TEST THE TRANSFORMS 
+
+* TEST THE TRANSFORMS! 
 
   #. execution time 
   #. perfect reconstruction property
@@ -52,7 +52,7 @@ Usage
 
 
 
-* If you want to just use a transform:
+* USE THEM!:
 
     Use case for STFT_CUSTOM::
 
