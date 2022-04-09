@@ -1,6 +1,15 @@
 =======================================================================
-Time frequency transforms under the mathematical framework of frames
+Time Frequency Analysis Toolbox
 =======================================================================
+
+Description
+============
+Time frequency transforms under the mathematical framework of frames. 
+IMPLEMENTED:
+* STFT
+* CQT
+* SCALE_FRAMES
+
 
 
 * Free software: MIT license
@@ -18,10 +27,11 @@ You can also install the in-development version with::
 
 
 
+|
+|
+
 Usage
 =============
-
-|
 
 
 * TEST THE TRANSFORMS! 
