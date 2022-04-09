@@ -60,7 +60,7 @@ Usage
 
     Use case for STFT_CUSTOM::
 
-        # from package_name.module_name import func1,func2           OR          from package_name import module_name1,module_name2
+        # from package_name.module_name import func1,func2 -----OR----- from package_name import module_name1,module_name2
         from Audio_proc_lib.audio_proc_functions import load_music
         from Time_Frequency_Analysis import STFT_custom
         import numpy as np
@@ -80,6 +80,7 @@ Usage
     
     Use case for NSGT_CQT::
 
+        # from package_name.module_name import func1,func2 -----OR----- from package_name import module_name1,module_name2
         from Audio_proc_lib.audio_proc_functions import load_music
         from Time_Frequency_Analysis import STFT_custom
 
@@ -99,6 +100,7 @@ Usage
 
     Use case for NSGT_SCALE_FRAMES::
 
+        # from package_name.module_name import func1,func2 -----OR----- from package_name import module_name1,module_name2
         from Audio_proc_lib.audio_proc_functions import load_music
         from Time_Frequency_Analysis import STFT_custom
         import numpy as np
