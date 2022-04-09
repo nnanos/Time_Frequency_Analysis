@@ -6,8 +6,11 @@ Description
 ============
 Time frequency transforms under the mathematical framework of frames. 
 IMPLEMENTED:
+
 * STFT
+
 * CQT
+
 * SCALE_FRAMES
 
 
