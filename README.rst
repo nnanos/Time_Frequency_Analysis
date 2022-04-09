@@ -13,11 +13,14 @@ IMPLEMENTED:
 
 * SCALE_FRAMES
 
+============
 
 software license
 ============
 
 Free software: MIT license
+
+============
 
 Installation
 ============
@@ -30,7 +33,7 @@ You can also install the in-development version with::
 
     pip install https://github.com/nnanos/Time_Frequency_Analysis/archive/main.zip
 
-
+============
 
 |
 |
@@ -137,7 +140,7 @@ Usage
         c = scale_frame_obj.forward(x)
         x_rec = scale_frame_obj.backward(c)
         
-
+============
     
 
 
