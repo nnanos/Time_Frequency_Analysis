@@ -4,10 +4,13 @@ Time Frequency Analysis Toolbox
 
 Description
 ============
-Time frequency transforms under the mathematical framework of frames. 
+Time frequency transforms under the mathematical framework of NON STATIONARY GABOR FRAMES as described in the paper  ..THEORY, IMPLEMENTATION AND APPLICATIONS OF
+NONSTATIONARY GABOR FRAMES : https://www.sciencedirect.com/science/article/pii/S0377042711004900. 
 IMPLEMENTED:
 
 * STFT
+  .. image:: STFT.png
+
 
 * CQT
 
@@ -93,13 +96,14 @@ Usage
         stft = STFT_custom.STFT_CUSTOM(g,a,M,support,L)
         X = stft.forward(x)
         x_rec = stft.backward(X)   
+        
 
     
     Use case for NSGT_CQT::
 
         # from package_name.module_name import func1,func2 -----OR----- from package_name import module_name1,module_name2
         from Audio_proc_lib.audio_proc_functions import load_music
-        from Time_Frequency_Analysis import STFT_custom
+        from Time_Frequency_Analysis import NSGT_CQT
 
         x,s = load_music()
 
@@ -119,7 +123,7 @@ Usage
 
         # from package_name.module_name import func1,func2 -----OR----- from package_name import module_name1,module_name2
         from Audio_proc_lib.audio_proc_functions import load_music
-        from Time_Frequency_Analysis import STFT_custom
+        from Time_Frequency_Analysis import SCALE_FRAMES
         import numpy as np
 
         x,s = load_music()
