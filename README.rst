@@ -21,6 +21,7 @@ You can also install the in-development version with::
 Usage
 =============
 
+|
 
 
 * TEST THE TRANSFORMS! 
@@ -51,6 +52,9 @@ Usage
       python __main__.py --front_end STFT -p "{ a : 1024 , M : 4096 , support : 4096 }" --plot_spectrograms True
 
 
+|
+|
+|
 
 * USE THEM!:
 
