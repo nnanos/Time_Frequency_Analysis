@@ -15,7 +15,7 @@ IMPLEMENTED:
 
 ============
 
-software license
+Software License
 ============
 
 Free software: MIT license
@@ -35,8 +35,7 @@ You can also install the in-development version with::
 
 ============
 
-|
-|
+
 
 Usage
 =============
