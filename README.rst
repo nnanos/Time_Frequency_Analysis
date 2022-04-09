@@ -14,8 +14,10 @@ IMPLEMENTED:
 * SCALE_FRAMES
 
 
+software license
+============
 
-* Free software: MIT license
+Free software: MIT license
 
 Installation
 ============
