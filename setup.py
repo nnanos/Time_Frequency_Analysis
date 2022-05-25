@@ -23,13 +23,14 @@ def read(*names, **kwargs):
 
 setup(
     name='Time-Frequency-Analysis',
-    version='0.0.3',
+    version='0.0.6',
     license='MIT',
     description='Time frequency transforms under the mathematical framework of frames',
-    long_description='%s\n%s' % (
-        re.compile('^.. start-badges.*^.. end-badges', re.M | re.S).sub('', read('README.rst')),
-        re.sub(':[a-z]+:`~?(.*?)`', r'``\1``', read('CHANGELOG.rst'))
-    ),
+    long_description='Time frequency transforms under the mathematical framework of frames',
+    # long_description='%s\n%s' % (
+    #     re.compile('^.. start-badges.*^.. end-badges', re.M | re.S).sub('', read('README.rst')),
+    #     re.sub(':[a-z]+:`~?(.*?)`', r'``\1``', read('CHANGELOG.rst'))
+    # ),
     author='Nanos Nikolaos',
     author_email='nnanos@ceid.upatras.gr',
     url='https://github.com/nnanos/Time_Frequency_Analysis',

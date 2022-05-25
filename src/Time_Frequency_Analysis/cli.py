@@ -42,7 +42,7 @@ parser.add_argument('--plot_spectrograms', type=str, default="True",
 args, _ = parser.parse_known_args()
 
 
-def plot_transform(c,transform,matrix_form,sr,redunduncy):
+def plot_transform(c,transform,matrix_form,sr,redunduncy,transform_obj=None):
 
 
     if transform=="NSGT_SCALE_FRAMES":
@@ -148,8 +148,39 @@ def plot_transform(c,transform,matrix_form,sr,redunduncy):
 
               
       else:
-        plot_spectrogram(c,44100,"cqt_note")
-        #pass
+        #plot_spectrogram(c,44100,"cqt_note")
+        # librosa.display.specshow(librosa.amplitude_to_db(np.abs(c), ref=np.max),
+        #               sr=sr, x_axis='time', y_axis="linear")        
+        grid = np.abs(c)
+        grid = np.log10(np.abs(c), out=grid)
+        grid *= 20
+        pmax = np.percentile(grid, 99.99)      
+
+        top_hz = sr//2
+
+
+        if transform_obj:
+          loc = np.linspace(0,len(c)-3,5)
+          loc = list(map(lambda x : int(x) , loc))
+          tmp_labels = transform_obj.fr_range[loc]
+          labels = list( map( lambda x : plt.Text(int(x), 0, str(int(x)) ) , tmp_labels )  ) 
+          plt.imshow(grid, cmap="inferno" ,aspect='auto', origin='lower', vmin=pmax-80, vmax=pmax)       
+          plt.yticks(loc,labels)    
+        else:
+          loc = np.array([  100.,  1000., 10000.,top_hz])
+          labels = [ plt.Text(100.0, 0, '$\\mathdefault{100}$') , plt.Text(1000.0, 0, '$\\mathdefault{1000}$') , plt.Text(10000.0, 0, '$\\mathdefault{10000}$'), plt.Text(top_hz, 0, str(top_hz) )  ]
+          plt.imshow(grid, cmap="inferno" ,aspect='auto', origin='lower', vmin=pmax-80, vmax=pmax,extent=[0,(1/sr)*c.shape[0]*2*c.shape[1]/redunduncy,0,sr//2])       
+          plt.yticks(loc,labels)    
+          plt.ylim(top=top_hz)   
+          plt.ylim(bottom=100)
+   
+        
+        plt.colorbar(format='%+2.0f dB')
+
+        plt.ylabel("Frequnecy (Hz) linear scale")
+        plt.xlabel("time (sec)")
+
+        plt.tight_layout()
 
     if transform=="STFT":
       # librosa.display.specshow(librosa.amplitude_to_db(np.abs(c), ref=np.max),
@@ -248,9 +279,9 @@ def main():
 
         #compare with library:
         t1 = cputime()
-        nsgt = instantiate_NSGT( f , ksi_s , 'log',args.params["ksi_min"],args.params["ksi_max"],args.params["B"]*7,reducedform=0,matrixform=args.params["matrix_form"],multithreading=False)
-        c1 = NSGT_forword(f,nsgt,pyramid_lvl=0,wavelet_type='db2')
-        f_rec1 = NSGT_backward(c1,nsgt,pyramid_lvl=0,wavelet_type='db2')
+        nsgt1 = instantiate_NSGT( f , ksi_s , 'log',args.params["ksi_min"],args.params["ksi_max"],args.params["B"]*7,reducedform=0,matrixform=args.params["matrix_form"],multithreading=False)
+        c1 = NSGT_forword(f,nsgt1,pyramid_lvl=0,wavelet_type='db2')
+        f_rec1 = NSGT_backward(c1,nsgt1,pyramid_lvl=0,wavelet_type='db2')
         rec_err = norm(f_rec1 - f)/norm(f)
         t2 = cputime()
 
@@ -274,7 +305,7 @@ def main():
 
 
         if args.plot_spectrograms=="True":
-          plot_transform(c,transform=args.front_end,sr=args.params["ksi_s"],matrix_form=args.params["matrix_form"],redunduncy=2*red)
+          plot_transform(c,transform=args.front_end,sr=args.params["ksi_s"],matrix_form=args.params["matrix_form"],redunduncy=2*red,transform_obj=nsgt)
           plt.title("NSGT_cqt_mine")
           plt.figure()
           plot_transform(c1,transform=args.front_end,sr=args.params["ksi_s"],matrix_form=args.params["matrix_form"],redunduncy=red1)
