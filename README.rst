@@ -4,12 +4,12 @@ Time Frequency Analysis Toolbox
 
 Description
 ============
-Time frequency transforms under the mathematical framework of NON STATIONARY GABOR FRAMES as described in the paper  ..THEORY, IMPLEMENTATION AND APPLICATIONS OF
-NONSTATIONARY GABOR FRAMES : https://www.sciencedirect.com/science/article/pii/S0377042711004900. 
+Time frequency transforms under the mathematical framework of NON STATIONARY GABOR FRAMES as described in the paper  `THEORY, IMPLEMENTATION AND APPLICATIONS OF
+NONSTATIONARY GABOR FRAMES <https://www.sciencedirect.com/science/article/pii/S0377042711004900/>`_. 
 IMPLEMENTED:
 
 * STFT
-  .. image:: STFT.png
+.. image:: /STFT.png
 
 
 * CQT
