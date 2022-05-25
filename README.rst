@@ -10,11 +10,12 @@ IMPLEMENTED:
 
 * STFT
 .. image:: /STFT.png
-
-
+    
 * CQT
+.. image:: /CQT.png
 
 * SCALE_FRAMES
+.. image:: /SCALE_FRAMES.png
 
 ============
 
