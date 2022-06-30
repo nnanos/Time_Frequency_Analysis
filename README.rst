@@ -1,5 +1,5 @@
 =======================================================================
-Time Frequency Analysis Toolbox
+Time Frequency Analysis-Synthesis Toolbox
 =======================================================================
 
 Description
